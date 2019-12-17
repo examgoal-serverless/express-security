@@ -1,5 +1,6 @@
 const mongodb = require("mongodb");
 const redis = require("redis");
+const Utils = require("./lib/utils");
 
 /*
   ENVIRONMENT VARIABLES
@@ -10,16 +11,6 @@ const redis = require("redis");
   2. REDIS_HOST (Redis Host name it can be multiple by comma separated)
   2. REDIS_PORT (Redis PORT it can be multiple by comma separated)
  */
-
-const buildResponse = (code, body) =>{
-    return {
-        statusCode: code,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    }
-};
 
 const getValueFromKey = (client, k) =>{
     return new Promise((resolve, reject) => {
@@ -73,7 +64,7 @@ exports.handler = async (event, context)=>{
     try {
         let redisHOSTS = process.env.REDIS_HOST.split(",").filter(el=> !!el);
         let redisPORTS = (process.env.REDIS_PORT || '').split(",").filter(el=> !!el);
-        return buildResponse(200, await new Promise((resolve, reject) => {
+        return Utils.buildResponse(200, await new Promise((resolve, reject) => {
             mongodb.connect(process.env.MONGODB_URI, {useUnifiedTopology: true}, (err, client) => {
                 if (err) return reject(err);
                 const p = Promise.all(redisHOSTS.map((el, i) => {
@@ -84,6 +75,6 @@ exports.handler = async (event, context)=>{
             });
         }));
     }catch (e) {
-        return buildResponse(500, {err: e});
+        return Utils.buildResponse(500, {err: e});
     }
 };
