@@ -16,6 +16,7 @@ const populateRedis = (data, host, port) =>{
         const client = redis.createClient(port, host);
         client.del(process.env.REDIS_IP_BLOCK_KEY, (err)=>{
             if(err) return reject(err);
+            if(!Array.isArray(data) || data.length === 0) return resolve(1);
             client.sadd(process.env.REDIS_IP_BLOCK_KEY, data, (err, res)=>{
                if(err) return reject(err);
                return resolve(res);
